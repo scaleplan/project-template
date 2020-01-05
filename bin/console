@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use Scaleplan\Console\CommandFabric;
+use Scaleplan\Console\Exceptions\CommandNameIsEmptyException;
+
+$dotEnv = Dotenv\Dotenv::createImmutable(dirname(__DIR__), empty($_COOKIE['phpbrowser']) ? '.env' : '.env.test');
+$dotEnv->load();
+
+try {
+    if (!($commandName = $argv[1] ?? null)) {
+        throw new CommandNameIsEmptyException();
+    }
+
+    unset($argv[0], $argv[1]);
+
+    $command = CommandFabric::getCommand($commandName, array_values($argv));
+    $command->run();
+} catch (Throwable $e) {
+    echo $e->getMessage();
+}
